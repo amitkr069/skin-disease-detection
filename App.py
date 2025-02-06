@@ -1,28 +1,28 @@
 import streamlit as st
 import numpy as np
 from tensorflow.keras.models import load_model
-from tensorflow.keras.applications.resnet import preprocess_input
+from tensorflow.keras.applications.densenet import preprocess_input  # Use DenseNet preprocessing
 from PIL import Image
 
 # Load the model
 @st.cache_resource
 def load_trained_model():
-    return load_model("my_model5.keras")
+    return load_model("my_model_gpu.keras")
 
 # Load the trained model
 model = load_trained_model()
 
 # Class index to label mapping
 class_labels = {
-    4: 'Nevus',
-    3: 'Pigmented',
-    5: 'Melanoma',
-    2: 'Seborrheic',
-    8: 'Acitinic',
-    0: 'Vascular',
-    6: 'Dermatofibroma',
-    7: 'Basal',
-    1: 'Squamous'
+    0: "Actinic Keratosis",
+    1: "Basal Cell Carcinoma",
+    2: "Dermatofibroma",
+    3: "Melanoma",
+    4: "Nevus",
+    5: "Pigmented Benign Keratosis",
+    6: "Seborrheic Keratosis",
+    7: "Squamous Cell Carcinoma",
+    8: "Vascular Lesion"
 }
 
 # Streamlit app UI
@@ -38,17 +38,19 @@ if uploaded_file is not None:
 
     # Preprocess the image
     input_shape = (224, 224)  # Correct shape: (width, height)
-    img = image.resize(input_shape)  # Resize the image
+    img = image.convert("RGB").resize(input_shape)  # Convert to RGB and resize
     img_array = np.array(img)  # Convert image to numpy array
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     img_array = preprocess_input(img_array)  # Preprocess the image for DenseNet121
 
     # Make predictions
     predictions = model.predict(img_array)  # Predict class probabilities
+    # st.write(f"Predictions (raw): {predictions}")  # Show raw predictions for debugging
+
     predicted_class_index = np.argmax(predictions, axis=1)  # Get the class index with the highest probability
 
     # Get the label from the dictionary
     predicted_class_label = class_labels.get(predicted_class_index[0], "Unknown")
 
     # Display the result
-    st.write(f"Predicted Class: {predicted_class_label}")
+    st.write(f"Predicted Disease: {predicted_class_label}")
