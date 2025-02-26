@@ -53,4 +53,4 @@ if uploaded_file is not None:
     predicted_class_label = class_labels.get(predicted_class_index[0], "Unknown")
 
     # Display the result
-    st.write(f"Predicted Disease: {predicted_class_label}")
+    st.markdown(f"## Predicted Disease: {predicted_class_label}")
